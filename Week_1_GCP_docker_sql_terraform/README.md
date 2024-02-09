@@ -157,9 +157,35 @@ root@localhost:ny_taxi>
   * From Jupyter notebook in local host connecting remote instance will be able to exeute python script.But if you are using sqlalchemy to connect postgres docker instance at port 5432 of remote instance where conda is installed install psycopg2 following ```conda install anaconda::psycopg2```. ```pip install psycopg2``` will not work and installing ```pip install psycopg2-binary``` won't solve the problem of connection postgres at 5432. **So move ahead**. May be next time we will not try to install conda at all and see the outcome.**_I don't think it is a problem of Conda though**
   
 # **Yet to update notes for below topic**
+* To authenticate create a service account,create key and download the key in your local machine
+  * Now create a service account and generate keys like shown in the videos
+  * Download the key and put it to some location, e.g. ``` .gc/terraformdemo2024-413709-02a2b43003f7.json ``` via sftp
+  * Set ```GOOGLE_APPLICATION_CREDENTIALS``` to point to the file
+  * export ```GOOGLE_APPLICATION_CREDENTIALS=~/.gc/terraformdemo2024-413709-02a2b43003f7.json```
+  Now authenticate:
+
+```sh
+gcloud auth activate-service-account --key-file $GOOGLE_APPLICATION_CREDENTIALS
+```
+Alternatively, you can authenticate using OAuth like shown in the video
+
+gcloud auth application-default login
+If you get a message like quota exceeded
+
+WARNING: Cannot find a quota project to add to ADC. You might receive a "quota exceeded" or "API not enabled" error. Run $ gcloud auth application-default set-quota-project to add a quota project.
+
+Then run this:
+
+PROJECT_NAME="terraformdemo2024"
+gcloud auth application-default set-quota-project ${PROJECT_NAME} 
 * Installing Terraform
+  * got to ```~/bin``` and run ```wget https://releases.hashicorp.com/terraform/1.7.3/terraform_1.7.3_linux_amd64.zip```
+  * run ```sudo apt-get install unzip``` because you probably don't have unzip
+  * remove ```terraform_1.7.3_linux_amd64.zip```
+  * go to the folder with main.tf and variable.tf in ```/home/abyssde232024/1_terraform_gcp``` and run ```terraform init``` 
 * Using sftp for putting the credentials to the remote machine
 * Shutting down and removing the instance
+  * ```sudo shutdown now```
 
 [def]: ./Images/image1.png
 [def2]:./Images/image2.png
