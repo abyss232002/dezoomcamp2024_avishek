@@ -36,3 +36,29 @@ like a conductor in orchestra.
 2.2.9 - 🗒️ Homework
 
 2.2.10 - 👣 Next Steps
+
+2.2.7 - 🤖 Deployment (Optional)
+In this section, we'll cover deploying Mage using Terraform and Google Cloud. This section is optional— it's not necessary to learn Mage, but it might be helpful if you're interested in creating a fully deployed project. If you're using Mage in your final project, you'll need to deploy it to the cloud.
+
+* [Terraform install mage link](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
+* [Terraform install DTC link](https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli)
+* check current machine ubuntu version ```lsb_release -a```
+* [install gcloud_cli ](https://cloud.google.com/sdk/docs/install)
+* Create a project in gcp 
+* Add a service account with role as owner(not recomended),Artifact Registry Reader,Artifact Registry Writer,Cloud Run Developer,Cloud SQL Admin,Service Account Token Creator
+* make a directory and run ```gcloud init``` in your console within the directory
+* run ```gcloud auth list``` to make sure your google account is associate
+* run ```git clone  https://github.com/mage-ai/mage-ai-terraform-templates.git``` .go to the folder ```/mage-ai-terraform-templates/gcp```
+* open the folder in vs code
+* create a service account under your project and create key
+* download the key and keep it inside your terraform project working folder under a folder name keys.
+* assign variable GOOGLE_CREDENTIALS with key file path.Echo $GOOGLE_CREDENTIALS to make sure it works
+* change variable.tf to update 
+```sh variable "project_id" {
+  type        = string
+  description = "your project name"
+  default     = "your unique project id"
+}
+```
+* run ```terraform fmt``` in vscode terminal to format your changes and save it
+* 
