@@ -82,12 +82,11 @@ No Points: Write a `SELECT count(*)` query FROM the materialized table you creat
 
 ## Queries from Big query
 
-```
 -- Query public available table
 -- SELECT station_id, name FROM
 --     bigquery-public-data.new_york_citibike.citibike_stations
 -- LIMIT 100;
-
+Select 1;
 -- Creating external table referring to gcs path
 CREATE OR REPLACE EXTERNAL TABLE `dw-bigquery-week-3.nytaxi.external_green_tripdata`
 OPTIONS (
@@ -133,9 +132,67 @@ select distinct PULocationID from `dw-bigquery-week-3.nytaxi.green_tripdata_non_
 
 select distinct PULocationID from `dw-bigquery-week-3.nytaxi.green_tripdata_partitoned_clustered` where DATE(lpep_pickup_datetime) >='2022-06-01' and DATE(lpep_pickup_datetime) <= '2022-06-01';
 
-
---## (Bonus: Not worth points) Question 8:No Points: Write a `SELECT count(*)` query FROM the materialized table you created. How many bytes does it estimate will be read? Why?
+-- ## (Bonus: Not worth points) Question 8:No Points: Write a `SELECT count(*)` query FROM the materialized table you created. How many bytes does it estimate will be read? Why?
 
 select count(*) from `dw-bigquery-week-3.nytaxi.green_tripdata_non_partitoned`;
-```
+
+select * from `dw-bigquery-week-3.nytaxi.green_tripdata_partitoned_clustered`;
+
+select * from `dw-bigquery-week-3.nytaxi.green_tripdata_non_partitoned`;
+
+select * from `dw-bigquery-week-3.nytaxi.external_green_tripdata`;
+
+-- Creating a partitioned table
+CREATE OR REPLACE TABLE dw-bigquery-week-3.nytaxi.green_tripdata_partitoned
+PARTITION BY DATE(lpep_pickup_datetime) AS
+SELECT * FROM dw-bigquery-week-3.nytaxi.external_green_tripdata;
+
+-- Impact of partition
+-- Scanning 12.82 MB of data
+SELECT DISTINCT(VendorID)
+FROM `dw-bigquery-week-3.nytaxi.green_tripdata_non_partitoned`
+WHERE DATE(lpep_pickup_datetime) BETWEEN '2022-06-01' AND '2022-06-30';
+
+-- Scanning ~1.12 MB of DATA
+SELECT DISTINCT(VendorID)
+FROM `dw-bigquery-week-3.nytaxi.green_tripdata_partitoned`
+WHERE DATE(lpep_pickup_datetime) BETWEEN '2022-06-01' AND '2022-06-30';
+
+-- Let's look into the partitons
+
+select table_name,partition_id,total_rows, from `nytaxi.INFORMATION_SCHEMA.PARTITIONS`
+where table_name like 'green_tripdata_partitoned'
+order by total_rows desc;
+
+-- Impact of partition
+-- Scanning 12.82 MB of data
+SELECT DISTINCT(VendorID)
+FROM `dw-bigquery-week-3.nytaxi.green_tripdata_non_partitoned`
+WHERE DATE(lpep_pickup_datetime) BETWEEN '2022-06-01' AND '2022-06-30';
+
+-- Scanning ~1.12 MB of DATA
+SELECT DISTINCT(VendorID)
+FROM `dw-bigquery-week-3.nytaxi.green_tripdata_partitoned`
+WHERE DATE(lpep_pickup_datetime) BETWEEN '2022-06-01' AND '2022-06-30';
+
+-- Creating a clustered table
+CREATE OR REPLACE TABLE dw-bigquery-week-3.nytaxi.green_tripdata_clustered
+CLUSTER BY PULocationID AS
+SELECT * FROM dw-bigquery-week-3.nytaxi.external_green_tripdata;
+
+
+-- Impact of clustring WITHOUT partition and using a filter criteria
+-- Scanning 114.11 MB of data
+select *
+from `dw-bigquery-week-3.nytaxi.green_tripdata_non_partitoned` 
+where PULocationID = 7
+order by PULocationID;
+
+-- Scanning 114.11 MB of data
+select *
+from `dw-bigquery-week-3.nytaxi.green_tripdata_clustered`
+where PULocationID = 7
+order by PULocationID;
+
+
 
